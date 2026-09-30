@@ -33,3 +33,17 @@ export const addPlace = (
     place_in_out_mult: { ...net.place_in_out_mult, [id]: [{}, {}] },
   };
 };
+
+export const addTransition = (
+    net: ObjectCentricPetriNet,
+    label: string
+): ObjectCentricPetriNet => {
+    const id = nextId(net.petri_net.transitions.map((t)=>t.id), "t")
+    return {
+        ...net,
+        petri_net: {
+            ...net.petri_net,
+            transitions: [...net.petri_net.transitions, {id, label}]
+        }
+    }
+}
