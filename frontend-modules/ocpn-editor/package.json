@@ -1,0 +1,48 @@
+{
+	"name": "@instance/ocpn-editor",
+	"version": "0.1.0",
+	"description": "An OCPN Editor",
+	"author": "Uy Sa Huynh",
+	"private": true,
+	"type": "module",
+	"exports": {
+		".": "./dist/index.js",
+		"./package.json": "./package.json"
+	},
+	"main": "./dist/index.js",
+	"types": "./dist/index.d.ts",
+	"files": [
+		"dist"
+	],
+	"scripts": {
+		"generate:api": "uv run ocelescope-backend openapi --module ocpnEditor",
+		"build": "pnpm run generate:api && orval && tsdown",
+		"dev": "tsdown --watch ./src",
+		"typecheck": "tsc --noEmit"
+	},
+	"peerDependencies": {
+		"@ocelescope/api-client": "catalog:",
+		"@ocelescope/core": "catalog:",
+		"@tanstack/react-query": "catalog:",
+		"axios": "catalog:",
+		"lucide-react": "catalog:",
+		"react": "catalog:",
+		"react-dom": "catalog:",
+		"@r4pm/components": "^0.3.2",
+		"@mantine/hooks": "9.4.0",
+		"@mantine/core": "^9.4.0"
+	},
+	"devDependencies": {
+		"@ocelescope/api-client": "catalog:",
+		"@ocelescope/api-config": "catalog:",
+		"@ocelescope/core": "catalog:",
+		"@tanstack/react-query": "catalog:",
+		"@types/react": "catalog:",
+		"axios": "catalog:",
+		"lucide-react": "catalog:",
+		"orval": "catalog:",
+		"react": "catalog:",
+		"tsdown": "catalog:",
+		"typescript": "catalog:"
+	}
+}
