@@ -1,10 +1,12 @@
 import "@r4pm/components/styles.css";
 import type { ObjectCentricPetriNet } from "@r4pm/components";
-import { Box, Button, Stack, Text, Splitter, ScrollArea, Group, Card, TextInput, NumberInput } from "@mantine/core";
+import { Box, Button, Stack, Text, Splitter, ScrollArea, Group, Card, TextInput, NumberInput, SegmentedControl, Select } from "@mantine/core";
 import { DownloadIcon, PlayIcon } from "lucide-react";
 import { lazy, useEffect, useState } from "react";
 import type { SplitterPaneSize } from "@mantine/hooks";
-import { addPlace, addTransition} from "../util/editor_functions";
+import { addPlace, addTransition, addArc} from "../util/editor_functions";
+import { useRef, useCallback } from "react";
+
 
 const OcpnEditorPanel = lazy(() => import("./OcpnEditorPanel"));
 
@@ -24,7 +26,11 @@ const Editor = () => {
   const [newPlaceTokens, setNewPlaceTokens] = useState(0);
   const [newPlaceFinalTokens, setNewPlaceFinalTokens] = useState(0);
   const [remountKey, setRemountKey] = useState(0);
-  const [newTransitionLabel, setNewTransitionLabel] = useState("New Transition")
+  const [newTransitionLabel, setNewTransitionLabel] = useState("New Transition");
+  const [variableArcButton, setVariableArcButton] = useState(false);
+  const [arcSource, setArcSource] = useState<string | null>(null);
+  const [arcTarget, setArcTarget] = useState<string | null>(null);
+  const netUpdateTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const handleAddPlace = () => {
     if (!newPlaceObjectType) return;
@@ -41,10 +47,40 @@ const Editor = () => {
     setRemountKey((k) => k + 1);
   }
 
+  const handleAddArc = () => {
+    if (!arcSource || !arcTarget) return;
+    const updated = addArc(net, arcSource, arcTarget, variableArcButton);
+    setSeedNet(updated);
+    setRemountKey((k) => k + 1);
+    setArcSource(null);
+    setArcTarget(null);
+  };
+
+  const handleRunLayout = () => {
+  setSeedNet(net);
+  setRemountKey((k) => k + 1);
+  };
+
+  const handleNetChange = useCallback((updatedNet: ObjectCentricPetriNet) => {
+    if (netUpdateTimer.current) clearTimeout(netUpdateTimer.current);
+    netUpdateTimer.current = setTimeout(() => {
+      setNet(updatedNet);
+    }, 200);
+  }, []);
+
+
   useEffect(() => setMounted(true), []);
   if (!mounted) return null;
 
-
+  const placeOptions = net.petri_net.places.map((p) => ({ value: p.id, label: p.id }));
+  const transitionOptions = net.petri_net.transitions.map((t) => ({ value: t.id, label: t.label ?? t.id }));
+  const sourceOptions = [
+    { group: "Places", items: placeOptions },
+    { group: "Transitions", items: transitionOptions },
+  ];
+  const sourceIsPlace = net.petri_net.places.some((p) => p.id === arcSource);
+  const targetOptions = arcSource ? (sourceIsPlace ? transitionOptions : placeOptions) : [];
+  const canAddArc = !!arcSource && !!arcTarget;
 
   return (
     <Splitter
@@ -70,11 +106,13 @@ const Editor = () => {
               <Button leftSection={<DownloadIcon size={16} />} variant="default">
                 Download
               </Button>
-              <Button leftSection={<PlayIcon size={16}/>}>Run Layout</Button>
+              <Button leftSection={<PlayIcon size={16}/>} onClick={handleRunLayout}>
+                Run Layout
+              </Button>
             </Group>
           </Group>
           <Box pos="relative" style={{ flex: 1, minHeight: 0, overflow: "hidden" }}>
-            <OcpnEditorPanel key={remountKey} data={seedNet} onNetChange={setNet} />
+            <OcpnEditorPanel key={remountKey} data={seedNet} onNetChange={handleNetChange} />
           </Box>
         </Stack>
       </Splitter.Pane>
@@ -115,10 +153,63 @@ const Editor = () => {
                 <Text size="xs" c="dimmed" mb="xs">
                   Set the transition label.
                 </Text>
-                <TextInput label="Transition Label" mb="xs" value={newTransitionLabel} onChange={(e) => setNewPlaceObjectType(e.currentTarget.value)}/>
+                <TextInput 
+                  label="Transition Label" 
+                  mb="xs" 
+                  value={newTransitionLabel} 
+                  onChange={(e) => setNewTransitionLabel(e.currentTarget.value)} 
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      handleAddTransition();
+                    }
+                  }}
+                />
                 <Button variant="default" onClick={handleAddTransition}>
                   Add Transition
               </Button>
+            </Card>
+            <Card withBorder radius="sm" padding="sm">
+                <Text fw={600} size="sm">
+                  New Arc
+                </Text>
+                <Text size="xs" c="dimmed" mb="xs">
+                  Select the source and target nodes.
+                </Text>
+                <SegmentedControl 
+                  value={variableArcButton ? "variable" : "normal"} 
+                  onChange={(v) => setVariableArcButton(v === "variable")} 
+                  data={[
+                    {label: "Normal", value: "normal"},
+                    {label: "Variable", value: "variable"}
+                  ]}/>            
+                <Stack gap={"xs"} mb="xs">
+                    <Select
+                      label="From"
+                      placeholder="Select source"
+                      data={sourceOptions}
+                      value={arcSource}
+                      onChange={(value) => {
+                        setArcSource(value);
+                        setArcTarget(null);
+                      }}
+                      clearable
+                      searchable
+                    />
+                    <Select
+                      label="To"
+                      placeholder="Select target"
+                      data={targetOptions}
+                      value={arcTarget}
+                      onChange={setArcTarget}
+                      disabled={!arcSource}
+                      clearable
+                      searchable
+                    />
+                </Stack>
+                <Button variant="default" disabled={!canAddArc} onClick={handleAddArc}>
+                  Add Arc
+                </Button>
             </Card>
           </Stack>
         </ScrollArea>
