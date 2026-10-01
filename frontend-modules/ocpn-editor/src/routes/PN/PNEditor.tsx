@@ -99,7 +99,7 @@ return (
 
       <Box pos="relative" style={{ flex: 1, minHeight: 0, overflow: "hidden" }}>
         <ReactFlowProvider>
-          <ViewerExportFrame filename="ocpn" style={{ height: "100%" }}>
+          <ViewerExportFrame filename="petri-net" style={{ height: "100%" }}>
               <Editor editable showExportControls={false} relayoutOnDrag={false} initialNodes={[]} initialEdges={[]} layoutOverride={wasmLayout.petri}>
                 <EditorFunction
                   onReady={(actions) => (actionsRef.current = actions)}
