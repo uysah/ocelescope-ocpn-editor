@@ -1,20 +1,20 @@
 import { defineModule, defineModuleRoute } from "@ocelescope/core";
-import { SparklesIcon } from "lucide-react";
-import Editor from "./routes/Editor";
+import { PencilRuler } from "lucide-react";
+import Editor from "./routes/main";
 
-export const OCPNEditor = defineModuleRoute({
+export const PnEditor = defineModuleRoute({
   component: Editor,
-  label: "Event Log Editor",
-  name: "Event Log Editor",
+  label: "Petri-Net Editor",
+  name: "Petri-Net Editor",
   requiresOcel: false,
 });
 
 
 export default defineModule({
   name: "ocpnEditor",
-  label: "OCPN Editor",
-  description: "An OCPN Editor",
+  label: "Petri-Net Editor",
+  description: "An Petri-Net Editor",
   authors: [{ name: "Uy Sa Huynh" }],
-  icon: SparklesIcon,
-  routes: [OCPNEditor],
+  icon: PencilRuler,
+  routes: [PnEditor],
 });

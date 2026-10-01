@@ -30,7 +30,8 @@
 		"react-dom": "catalog:",
 		"@r4pm/components": "^0.3.2",
 		"@mantine/hooks": "9.4.0",
-		"@mantine/core": "^9.4.0"
+		"@mantine/core": "^9.4.0",
+		"@xyflow/react": "^12.10.1"
 	},
 	"devDependencies": {
 		"@ocelescope/api-client": "catalog:",

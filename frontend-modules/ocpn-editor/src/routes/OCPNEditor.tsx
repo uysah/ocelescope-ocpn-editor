@@ -4,8 +4,9 @@ import { Box, Button, Stack, Text, Splitter, ScrollArea, Group, Card, TextInput,
 import { DownloadIcon, PlayIcon } from "lucide-react";
 import { lazy, useEffect, useState } from "react";
 import type { SplitterPaneSize } from "@mantine/hooks";
-import { addPlace, addTransition, addArc} from "../util/editor_functions";
+import { addPlace, addTransition, addArc} from "../util/OCPN/editor_functions";
 import { useRef, useCallback } from "react";
+import { EditorMode } from "./main";
 
 
 const OcpnEditorPanel = lazy(() => import("./OcpnEditorPanel"));
@@ -16,7 +17,14 @@ const emptyNet: ObjectCentricPetriNet = {
   place_in_out_mult: {},
 };
 
-const Editor = () => {
+const Editor = (
+  {
+    mode,onModeChange
+  }:{
+    mode:EditorMode;
+    onModeChange: (mode:EditorMode) => void;
+  }
+) => {
   const [mounted, setMounted] = useState(false);
   const COLLAPSED_SIZES: SplitterPaneSize[] = [75, 25];
   const [sizes, setSizes] = useState<SplitterPaneSize[]>(COLLAPSED_SIZES);
@@ -110,6 +118,15 @@ const Editor = () => {
               {/* <Button leftSection={<DownloadIcon size={16} />} variant="default">
                 Download
               </Button> */}
+              <SegmentedControl
+                value={mode}
+                onChange={(v) => onModeChange(v as EditorMode)}
+                data={[
+                  { label: "Object-Centric", value: "ocpn" },
+                  { label: "Case-Centric", value: "classic" }
+
+                ]}
+              />
               <Button leftSection={<PlayIcon size={16}/>} onClick={handleRunLayout}>
                 Run Layout
               </Button>
@@ -127,7 +144,6 @@ const Editor = () => {
             <Group
                 px="sm"
                 py="xs"
-                mb={"xs"}
                 wrap="nowrap"
                 justify="space-between"
                 style={{ borderBottom: "2px solid var(--mantine-color-default-border)" }}
@@ -136,6 +152,9 @@ const Editor = () => {
                 Toolbox
               </Text>
             </Group>
+            <Text fw={600} size="md">
+              Add Elements
+            </Text>
             <Card withBorder radius="sm" padding="sm">
               <Text fw={600} size="sm">
                 New Place
