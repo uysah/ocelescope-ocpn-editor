@@ -1,6 +1,6 @@
 import { defineModule, defineModuleRoute } from "@ocelescope/core";
 import { SparklesIcon } from "lucide-react";
-import Editor from "./routes/Hello";
+import Editor from "./routes/Editor";
 
 export const OCPNEditor = defineModuleRoute({
   component: Editor,

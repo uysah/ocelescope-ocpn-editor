@@ -1,6 +1,7 @@
 import "@r4pm/components/styles.css";
 import { ObjectCentricPetriNetWorkbench, type ObjectCentricPetriNet, ViewerConfigProvider  } from "@r4pm/components";
 import { wasmLayout } from "@r4pm/components/rust-layout/wasm";
+import {HideToolbarButtons} from "../util/hideToolbar"
 
 const OcpnEditorPanel = ({
   data,
@@ -11,7 +12,10 @@ const OcpnEditorPanel = ({
 }) => {
   return (
     <ViewerConfigProvider value={{ layout: wasmLayout }}>
-      <ObjectCentricPetriNetWorkbench data={data} initialMode="edit" onNetChange={onNetChange} />
+      <div style={{ position: "relative", height: "100%" }}>
+        <ObjectCentricPetriNetWorkbench data={data} initialMode="edit" onNetChange={onNetChange} />
+        <HideToolbarButtons labels={["Place", "Transition", "Layout"]} />
+      </div>
     </ViewerConfigProvider>
   );
 };

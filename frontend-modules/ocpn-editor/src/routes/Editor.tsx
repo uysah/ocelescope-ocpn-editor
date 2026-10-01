@@ -1,6 +1,6 @@
 import "@r4pm/components/styles.css";
 import type { ObjectCentricPetriNet } from "@r4pm/components";
-import { Box, Button, Stack, Text, Splitter, ScrollArea, Group, Card, TextInput, NumberInput, SegmentedControl, Select } from "@mantine/core";
+import { Box, Button, Stack, Text, Splitter, ScrollArea, Group, Card, TextInput, NumberInput, SegmentedControl, Select, Autocomplete } from "@mantine/core";
 import { DownloadIcon, PlayIcon } from "lucide-react";
 import { lazy, useEffect, useState } from "react";
 import type { SplitterPaneSize } from "@mantine/hooks";
@@ -31,12 +31,16 @@ const Editor = () => {
   const [arcSource, setArcSource] = useState<string | null>(null);
   const [arcTarget, setArcTarget] = useState<string | null>(null);
   const netUpdateTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [knownObjectTypes, setKnownObjectTypes] = useState<string[]>([]);
 
   const handleAddPlace = () => {
     if (!newPlaceObjectType) return;
     const updated = addPlace(net, newPlaceObjectType, newPlaceTokens, newPlaceFinalTokens);
     setSeedNet(updated);
     setRemountKey((k) => k + 1);
+    setKnownObjectTypes((prev) =>
+      prev.includes(newPlaceObjectType) ? prev : [...prev, newPlaceObjectType],
+    );
     setNewPlaceTokens(0);
     setNewPlaceFinalTokens(0);
   };
@@ -103,9 +107,9 @@ const Editor = () => {
               OCPN Editor
             </Text>
             <Group>
-              <Button leftSection={<DownloadIcon size={16} />} variant="default">
+              {/* <Button leftSection={<DownloadIcon size={16} />} variant="default">
                 Download
-              </Button>
+              </Button> */}
               <Button leftSection={<PlayIcon size={16}/>} onClick={handleRunLayout}>
                 Run Layout
               </Button>
@@ -139,7 +143,19 @@ const Editor = () => {
               <Text size="xs" c="dimmed" mb="xs">
                 Set the object type, initial, and final marking.
               </Text>
-              <TextInput label="Object Type" mb="xs" value={newPlaceObjectType} onChange={(e) => setNewPlaceObjectType(e.currentTarget.value)}/>
+              <Autocomplete
+                label="Object Type"
+                mb="xs"
+                value={newPlaceObjectType}
+                onChange={setNewPlaceObjectType}
+                data={knownObjectTypes}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    handleAddPlace();
+                  }
+                }}
+              />
               <NumberInput label="Initial Tokens" mb="xs" value={newPlaceTokens} onChange={(v) => setNewPlaceTokens(Number(v)|| 0)}/>
               <NumberInput label="Final Tokens" mb="xs" value={newPlaceFinalTokens} onChange={(v) => setNewPlaceTokens(Number(v)|| 0)}/>
               <Button variant="default" disabled={!newPlaceObjectType} onClick={handleAddPlace}>
