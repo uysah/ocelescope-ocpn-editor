@@ -6,11 +6,12 @@ import { DownloadIcon, PlayIcon } from "lucide-react";
 import { useRef, useState } from "react";
 import type { SplitterPaneSize } from "@mantine/hooks";
 import { wasmLayout } from "@r4pm/components/rust-layout/wasm";
-import { useExportPetriNetPnml } from "../api/ocpnEditor";
-import {buildPetriNet, downloadFile} from "../util/Petri Net/export_pnml";
-import { buildArcSourceOptions, buildArcTargetOptions } from "../util/Petri Net/add_arcs";
-import { EditorFunction, type SelectedNode, type EditorActions } from "../util/Petri Net/PnEditor_function";
-import { EditorMode } from "./main";
+import { useExportPetriNetPnml } from "../../api/ocpnEditor";
+import {buildPetriNet, downloadFile} from "../../util/Petri Net/export_pnml";
+import { buildArcSourceOptions, buildArcTargetOptions } from "../../util/Petri Net/add_arcs";
+import { EditorFunction, type SelectedNode, type EditorActions } from "../../util/Petri Net/PnEditor_function";
+import { EditorMode } from "../main";
+import {ViewerExportFrame} from "@r4pm/components"
 
 const PetriNetEditor = (
   {
@@ -88,7 +89,7 @@ return (
             ]}
           />
           <Button leftSection={<DownloadIcon size={16} />} variant="default" onClick={handleDownload}>
-            Download
+            Export PNML
           </Button>
           <Button variant="filled" leftSection={<PlayIcon size={16}/>} onClick={()=> actionsRef.current?.runLayout()}>
             Run Layout
@@ -98,13 +99,15 @@ return (
 
       <Box pos="relative" style={{ flex: 1, minHeight: 0, overflow: "hidden" }}>
         <ReactFlowProvider>
-          <Editor editable showExportControls={false} relayoutOnDrag={false} initialNodes={[]} initialEdges={[]} layoutOverride={wasmLayout.petri}>
-            <EditorFunction
-              onReady={(actions) => (actionsRef.current = actions)}
-              onSelectionChange={setSelected}
-              onNodesChange={setNodesForToolbox}
-            />
-          </Editor>
+          <ViewerExportFrame filename="ocpn" style={{ height: "100%" }}>
+              <Editor editable showExportControls={false} relayoutOnDrag={false} initialNodes={[]} initialEdges={[]} layoutOverride={wasmLayout.petri}>
+                <EditorFunction
+                  onReady={(actions) => (actionsRef.current = actions)}
+                  onSelectionChange={setSelected}
+                  onNodesChange={setNodesForToolbox}
+                />
+              </Editor>
+          </ViewerExportFrame>
         </ReactFlowProvider>
       </Box>
     </Stack>
@@ -151,7 +154,18 @@ return (
               <Text size="xs" c="dimmed" mb="xs">
                 Set the label transition.
               </Text>
-              <TextInput label="Label" mb="xs" value={newTransitionLabel}    onChange={(e) => setNewTransitionLabel(e.currentTarget.value)} />
+              <TextInput 
+                label="Label" 
+                mb="xs" 
+                value={newTransitionLabel}    
+                onChange={(e) => setNewTransitionLabel(e.currentTarget.value)} 
+                onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      actionsRef.current?.addTransition(newTransitionLabel)
+                    }
+                  }}
+                />
               <Button variant="default" onClick={() => {actionsRef.current?.addTransition(newTransitionLabel)}}>
                 Add transition
               </Button>

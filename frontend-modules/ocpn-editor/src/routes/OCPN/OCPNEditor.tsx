@@ -4,9 +4,9 @@ import { Box, Button, Stack, Text, Splitter, ScrollArea, Group, Card, TextInput,
 import { DownloadIcon, PlayIcon } from "lucide-react";
 import { lazy, useEffect, useState } from "react";
 import type { SplitterPaneSize } from "@mantine/hooks";
-import { addPlace, addTransition, addArc} from "../util/OCPN/editor_functions";
+import { addPlace, addTransition, addArc} from "../../util/OCPN/editor_functions";
 import { useRef, useCallback } from "react";
-import { EditorMode } from "./main";
+import { EditorMode } from "../main";
 
 
 const OcpnEditorPanel = lazy(() => import("./OcpnEditorPanel"));
@@ -176,7 +176,7 @@ const Editor = (
                 }}
               />
               <NumberInput label="Initial Tokens" mb="xs" value={newPlaceTokens} onChange={(v) => setNewPlaceTokens(Number(v)|| 0)}/>
-              <NumberInput label="Final Tokens" mb="xs" value={newPlaceFinalTokens} onChange={(v) => setNewPlaceTokens(Number(v)|| 0)}/>
+              <NumberInput label="Final Tokens" mb="xs" value={newPlaceFinalTokens} onChange={(v) => setNewPlaceFinalTokens(Number(v)|| 0)}/>
               <Button variant="default" disabled={!newPlaceObjectType} onClick={handleAddPlace}>
                 Add Place
               </Button>

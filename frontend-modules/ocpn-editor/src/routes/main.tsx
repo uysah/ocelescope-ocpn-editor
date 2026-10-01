@@ -1,8 +1,8 @@
 import { lazy, Suspense, useState } from "react";
 import { Center, Loader } from "@mantine/core";
 
-const PetriNetEditor = lazy(() => import("./PNEditor"));
-const OcpnEditor = lazy(() => import("./OCPNEditor"));
+const PetriNetEditor = lazy(() => import("./PN/PNEditor"));
+const OcpnEditor = lazy(() => import("./OCPN/OCPNEditor"));
 
 export type EditorMode = "classic" | "ocpn";
 
