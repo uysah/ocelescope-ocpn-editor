@@ -112,21 +112,12 @@ const Editor = (
             style={{ borderBottom: "2px solid var(--mantine-color-default-border)" }}
           >
             <Text fw={600} size="lg">
-              OCPN Editor
+              Object-Centric Petri-Net Editor
             </Text>
             <Group>
               {/* <Button leftSection={<DownloadIcon size={16} />} variant="default">
                 Download
               </Button> */}
-              <SegmentedControl
-                value={mode}
-                onChange={(v) => onModeChange(v as EditorMode)}
-                data={[
-                  { label: "Object-Centric", value: "ocpn" },
-                  { label: "Case-Centric", value: "classic" }
-
-                ]}
-              />
               <Button leftSection={<PlayIcon size={16}/>} onClick={handleRunLayout}>
                 Run Layout
               </Button>
@@ -152,6 +143,18 @@ const Editor = (
                 Toolbox
               </Text>
             </Group>
+            <Text fw={600} size="md">
+              Editor Type
+            </Text>
+            <SegmentedControl
+                value={mode}
+                onChange={(v) => onModeChange(v as EditorMode)}
+                data={[
+                  { label: "Object-Centric", value: "ocpn" },
+                  { label: "Case-Centric", value: "classic" }
+
+                ]}
+            />
             <Text fw={600} size="md">
               Add Elements
             </Text>

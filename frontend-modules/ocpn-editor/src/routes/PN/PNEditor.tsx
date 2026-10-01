@@ -78,16 +78,8 @@ return (
         justify="space-between"
         style={{ borderBottom: "2px solid var(--mantine-color-default-border)" }}
       >
-        <Text fw={600} size="lg">Petri Net Editor</Text>
+        <Text fw={600} size="lg">Petri-Net Editor</Text>
         <Group>
-          <SegmentedControl
-            value={mode}
-            onChange={(v) => onModeChange(v as EditorMode)}
-            data={[
-              { label: "Object-Centric", value: "ocpn" },
-              { label: "Case-Centric", value: "classic" }
-            ]}
-          />
           <Button leftSection={<DownloadIcon size={16} />} variant="default" onClick={handleDownload}>
             Export PNML
           </Button>
@@ -128,6 +120,17 @@ return (
               </Text>
             </Group>
             <Text fw={600} size="md">
+                Editor Type
+            </Text>
+            <SegmentedControl
+            value={mode}
+            onChange={(v) => onModeChange(v as EditorMode)}
+            data={[
+              { label: "Object-Centric", value: "ocpn" },
+              { label: "Case-Centric", value: "classic" }
+            ]}
+            />
+            <Text fw={600} size="md">
               Add Elements
             </Text>
 
@@ -152,7 +155,7 @@ return (
                 New Transition
               </Text>
               <Text size="xs" c="dimmed" mb="xs">
-                Set the label transition.
+                Set the transition label.
               </Text>
               <TextInput 
                 label="Label" 
