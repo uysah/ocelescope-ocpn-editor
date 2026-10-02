@@ -3,8 +3,8 @@ import tempfile
 import os
 from r4pm.petri_net import export_pnml  
 from fastapi.responses import PlainTextResponse
-
-
+from ocelescope_module_ocpn_editor.util.convert_format import convert_to_PN
+from ocelescope_module_ocpn_editor.model.input_ocpn import OcpnExportRequest
 router = APIRouter()
 
 
@@ -21,3 +21,20 @@ def export_petri_net_pnml(net: dict) -> PlainTextResponse:
         os.unlink(tmp_path)
 
     return PlainTextResponse(content=pnml_text)
+
+
+@router.post("/ocpn/export/ocelescope", operation_id="exportOCPN")
+def export_ocpn(ocpn: OcpnExportRequest) -> PlainTextResponse:
+    pnet = convert_to_PN(ocpn)
+
+    with tempfile.NamedTemporaryFile(suffix=".ocelescope", delete=False) as tmp:
+        tmp_path = tmp.name
+
+    try:
+        written_path = pnet.write(tmp_path)
+        with open(written_path, "r", encoding="utf-8") as f:
+            content = f.read()
+    finally:
+        os.unlink(written_path)
+
+    return PlainTextResponse(content=content)

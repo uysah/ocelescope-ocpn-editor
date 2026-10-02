@@ -2,7 +2,7 @@ import "@r4pm/components/styles.css";
 import { ReactFlowProvider } from "@xyflow/react";
 import { Editor, type PetriNetNode } from "@r4pm/components/petri";
 import { Box, Button, Stack, Text, Divider, NumberInput, TextInput, Splitter, ScrollArea, Group, Select, Card, MultiSelect, SegmentedControl} from "@mantine/core";
-import { DownloadIcon, PlayIcon } from "lucide-react";
+import { DownloadIcon, PlayIcon, Upload } from "lucide-react";
 import { useRef, useState } from "react";
 import type { SplitterPaneSize } from "@mantine/hooks";
 import { wasmLayout } from "@r4pm/components/rust-layout/wasm";
@@ -31,7 +31,7 @@ const PetriNetEditor = (
   const [nodes, setNodesForToolbox] = useState<PetriNetNode[]>([]);
   const [newPlaceTokens, setNewPlaceTokens] = useState(0);
   const [newPlaceFinalTokens, setNewPlaceFinalTokens] = useState(0);
-  const [newTransitionLabel, setNewTransitionLabel] = useState("Transition");
+  const [newTransitionLabel, setNewTransitionLabel] = useState("New Transition");
 
   const actionsRef = useRef<EditorActions | null>(null);
 
@@ -80,6 +80,9 @@ return (
       >
         <Text fw={600} size="lg">Petri-Net Editor</Text>
         <Group>
+          <Button leftSection={<Upload size={16} />} variant="default">
+            Upload Petri-Net
+          </Button>
           <Button leftSection={<DownloadIcon size={16} />} variant="default" onClick={handleDownload}>
             Export PNML
           </Button>
@@ -127,7 +130,7 @@ return (
             onChange={(v) => onModeChange(v as EditorMode)}
             data={[
               { label: "Object-Centric", value: "ocpn" },
-              { label: "Case-Centric", value: "classic" }
+              { label: "Classic", value: "classic" }
             ]}
             />
             <Text fw={600} size="md">

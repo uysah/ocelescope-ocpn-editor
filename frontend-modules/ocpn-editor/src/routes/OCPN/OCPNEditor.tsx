@@ -1,12 +1,14 @@
 import "@r4pm/components/styles.css";
 import type { ObjectCentricPetriNet } from "@r4pm/components";
 import { Box, Button, Stack, Text, Splitter, ScrollArea, Group, Card, TextInput, NumberInput, SegmentedControl, Select, Autocomplete } from "@mantine/core";
-import { DownloadIcon, PlayIcon } from "lucide-react";
+import { DownloadIcon, PlayIcon, Upload } from "lucide-react";
 import { lazy, useEffect, useState } from "react";
 import type { SplitterPaneSize } from "@mantine/hooks";
 import { addPlace, addTransition, addArc} from "../../util/OCPN/editor_functions";
 import { useRef, useCallback } from "react";
 import { EditorMode } from "../main";
+import { useExportOCPN } from "../../api/ocpnEditor";
+import { downloadFile } from "../../util/Petri Net/export_pnml";
 
 
 const OcpnEditorPanel = lazy(() => import("./OcpnEditorPanel"));
@@ -40,6 +42,15 @@ const Editor = (
   const [arcTarget, setArcTarget] = useState<string | null>(null);
   const netUpdateTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [knownObjectTypes, setKnownObjectTypes] = useState<string[]>([]);
+
+  const { mutateAsync: exportOcpn } = useExportOCPN();
+
+  const handleDownload = async () => {
+    const result = await exportOcpn({ data: net });
+    const content = JSON.stringify(result, null, 2);
+    downloadFile("ocpn.ocelescope", content, "application/json");
+  };
+
 
   const handleAddPlace = () => {
     if (!newPlaceObjectType) return;
@@ -81,6 +92,8 @@ const Editor = (
   }, []);
 
 
+
+
   useEffect(() => setMounted(true), []);
   if (!mounted) return null;
 
@@ -115,9 +128,12 @@ const Editor = (
               Object-Centric Petri-Net Editor
             </Text>
             <Group>
-              {/* <Button leftSection={<DownloadIcon size={16} />} variant="default">
-                Download
-              </Button> */}
+              <Button leftSection={<Upload size={16} />} variant="default" >
+                Upload OCPN
+              </Button>
+              <Button leftSection={<DownloadIcon size={16} />} variant="default" onClick={handleDownload}>
+                Export OCPN
+              </Button>
               <Button leftSection={<PlayIcon size={16}/>} onClick={handleRunLayout}>
                 Run Layout
               </Button>
@@ -151,7 +167,7 @@ const Editor = (
                 onChange={(v) => onModeChange(v as EditorMode)}
                 data={[
                   { label: "Object-Centric", value: "ocpn" },
-                  { label: "Case-Centric", value: "classic" }
+                  { label: "Classic", value: "classic" }
 
                 ]}
             />
