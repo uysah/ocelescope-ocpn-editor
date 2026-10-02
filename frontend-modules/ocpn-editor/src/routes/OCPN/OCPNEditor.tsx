@@ -3,7 +3,7 @@ import type { ObjectCentricPetriNet } from "@r4pm/components";
 import { Box, Button, Stack, Text, Splitter, ScrollArea, Group, Card, TextInput, NumberInput, SegmentedControl, Select, Autocomplete } from "@mantine/core";
 import { DownloadIcon, PlayIcon, Upload } from "lucide-react";
 import { lazy, useEffect, useState } from "react";
-import type { SplitterPaneSize } from "@mantine/hooks";
+import type { SplitterPaneSize, UseSplitterReturnValue } from "@mantine/hooks";
 import { addPlace, addTransition, addArc} from "../../util/OCPN/editor_functions";
 import { useRef, useCallback } from "react";
 import { EditorMode } from "../main";
@@ -29,11 +29,7 @@ const Editor = (
 ) => {
 
 
-  const COLLAPSED_SIZES: SplitterPaneSize[] = [75, 25];
-
-
   const [mounted, setMounted] = useState(false);
-  const [sizes, setSizes] = useState<SplitterPaneSize[]>(COLLAPSED_SIZES);
   const [net, setNet] = useState<ObjectCentricPetriNet>(emptyNet);
   const [seedNet, setSeedNet] = useState<ObjectCentricPetriNet>(emptyNet);
   const [newPlaceObjectType, setNewPlaceObjectType] = useState("");
@@ -49,7 +45,7 @@ const Editor = (
 
   const netUpdateTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-
+  const splitterRef = useRef<UseSplitterReturnValue>(null);
 
   const { mutateAsync: exportOcpn } = useExportOCPN();
   const { mutateAsync: importOcpn } = useImportOCPN();
@@ -132,8 +128,7 @@ const Editor = (
 
   return (
     <Splitter
-      sizes={sizes}
-      onSizeChange={setSizes}
+      splitterRef={splitterRef}
       lineSize={4}
       handleColor="var(--mantine-color-default-border)"
       h={"100%"}
