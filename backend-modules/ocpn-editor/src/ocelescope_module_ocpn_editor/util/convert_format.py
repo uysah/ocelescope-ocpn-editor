@@ -1,5 +1,5 @@
 from ocelescope.resource.default.petri_net import Arc, ArcType, PetriNet, Place, Transition
-from ocelescope_module_ocpn_editor.model.input_ocpn import OcpnExportRequest
+from ocelescope_module_ocpn_editor.model.editor_ocpn import OcpnExportRequest, OcpnImportResponse, EditorArc, EditorOCPN, EditorPlace, EditorTransition
 
 
 def convert_to_PN(ocpn: OcpnExportRequest) -> PetriNet:
@@ -39,3 +39,49 @@ def convert_to_PN(ocpn: OcpnExportRequest) -> PetriNet:
     ocpn.final_marking = dict(net.final_marking if net.final_marking is not None else {})
 
     return ocpn
+
+
+def convert_from_PN(ocpn:PetriNet) -> OcpnImportResponse:
+    places = []
+    place_object_type = {}
+  
+
+    for place in ocpn.places:
+        places.append(EditorPlace(id=place.name))
+        place_object_type[place.name] = place.object_type
+
+    transitions = [EditorTransition(id=transition.name, label=transition.label) for transition in ocpn.transitions]
+    initial_marking = ocpn.initial_marking if ocpn.initial_marking is not None else {}
+    final_marking = ocpn.final_marking if ocpn.initial_marking is not None else {}
+
+    place_ids = {place.id for place in places}
+    place_in_out_mult: dict[str, tuple[dict[str, bool], dict[str, bool]]] = {
+        ids: ({}, {}) for ids in place_ids
+    }
+
+
+    arcs = []
+    for arc in ocpn.arcs:
+        arcs.append(EditorArc(nodes=(arc.source,arc.target), weight=arc.weight))
+        if arc.type != ArcType.VARIABLE:
+            continue
+        if arc.source in place_ids:
+            place_id, transition_id = arc.source, arc.target
+            incoming, outgoing = place_in_out_mult[place_id]
+            place_in_out_mult[place_id] = (incoming, {**outgoing, transition_id: True})
+        else:
+            transition_id, place_id = arc.source, arc.target
+            incoming, outgoing = place_in_out_mult[place_id]
+            place_in_out_mult[place_id] = ({**incoming, transition_id: True}, outgoing)
+
+    return OcpnImportResponse(
+        petri_net= EditorOCPN(
+            places=places,
+            transitions=transitions,
+            arcs=arcs,
+            initial_marking=initial_marking,
+            final_marking=final_marking,
+        ),
+        place_object_type=place_object_type,
+        place_in_out_mult=place_in_out_mult,
+    )

@@ -80,9 +80,11 @@ return (
       >
         <Text fw={600} size="lg">Petri-Net Editor</Text>
         <Group>
-          <Button leftSection={<Upload size={16} />} variant="default">
-            Upload Petri-Net
-          </Button>
+          <input
+          />
+            <Button leftSection={<Upload size={16} />} variant="default">
+              Upload Petri-Net
+            </Button>
           <Button leftSection={<DownloadIcon size={16} />} variant="default" onClick={handleDownload}>
             Export PNML
           </Button>

@@ -7,7 +7,7 @@ import type { SplitterPaneSize } from "@mantine/hooks";
 import { addPlace, addTransition, addArc} from "../../util/OCPN/editor_functions";
 import { useRef, useCallback } from "react";
 import { EditorMode } from "../main";
-import { useExportOCPN } from "../../api/ocpnEditor";
+import { useExportOCPN, useImportOCPN } from "../../api/ocpnEditor";
 import { downloadFile } from "../../util/Petri Net/export_pnml";
 
 
@@ -27,8 +27,12 @@ const Editor = (
     onModeChange: (mode:EditorMode) => void;
   }
 ) => {
-  const [mounted, setMounted] = useState(false);
+
+
   const COLLAPSED_SIZES: SplitterPaneSize[] = [75, 25];
+
+
+  const [mounted, setMounted] = useState(false);
   const [sizes, setSizes] = useState<SplitterPaneSize[]>(COLLAPSED_SIZES);
   const [net, setNet] = useState<ObjectCentricPetriNet>(emptyNet);
   const [seedNet, setSeedNet] = useState<ObjectCentricPetriNet>(emptyNet);
@@ -40,15 +44,34 @@ const Editor = (
   const [variableArcButton, setVariableArcButton] = useState(false);
   const [arcSource, setArcSource] = useState<string | null>(null);
   const [arcTarget, setArcTarget] = useState<string | null>(null);
-  const netUpdateTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [knownObjectTypes, setKnownObjectTypes] = useState<string[]>([]);
 
+
+  const netUpdateTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+
   const { mutateAsync: exportOcpn } = useExportOCPN();
+  const { mutateAsync: importOcpn } = useImportOCPN();
+
 
   const handleDownload = async () => {
     const result = await exportOcpn({ data: net });
     const content = JSON.stringify(result, null, 2);
     downloadFile("ocpn.ocelescope", content, "application/json");
+  };
+
+  const handleImportClick = () => fileInputRef.current?.click();
+
+  const handleFileSelected = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const importedOCPN = await importOcpn({ data: { file } });
+    setSeedNet(importedOCPN as ObjectCentricPetriNet);
+    setNet(importedOCPN as ObjectCentricPetriNet);
+    setRemountKey((k) => k + 1);
+
+    e.target.value = "";
   };
 
 
@@ -128,7 +151,14 @@ const Editor = (
               Object-Centric Petri-Net Editor
             </Text>
             <Group>
-              <Button leftSection={<Upload size={16} />} variant="default" >
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept=".ocelescope"
+                style={{ display: "none" }}
+                onChange={handleFileSelected}
+              />
+              <Button leftSection={<Upload size={16} />} variant="default" onClick={handleImportClick}>
                 Upload OCPN
               </Button>
               <Button leftSection={<DownloadIcon size={16} />} variant="default" onClick={handleDownload}>

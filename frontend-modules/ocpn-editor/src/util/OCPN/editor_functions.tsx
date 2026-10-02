@@ -9,7 +9,7 @@ const nextTransitionId = (existingIds: string[]) => {
   return `${"t"}${next}`;
 };
 const nextPlaceId = (net: ObjectCentricPetriNet, objectType: string) => {
-  const prefix = `${(objectType.toLowerCase())}_p`;
+  const prefix = `${(objectType)}_p_`;
   const used = net.petri_net.places
     .map((p) => p.id)
     .filter((id) => id.startsWith(prefix))
